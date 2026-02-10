@@ -1,7 +1,7 @@
 # 🎮 Ball Eater Game
 
 Professional 2D arcade game with sound-reactive visuals, AI patterns, and mobile controls.
-
+ 
 ## 🚀 Features
 
 ### Core Gameplay
