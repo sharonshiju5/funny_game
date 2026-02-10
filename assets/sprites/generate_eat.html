@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<body>
+<canvas id="c" width="192" height="64"></canvas>
+<script>
+const c = document.getElementById('c');
+const ctx = c.getContext('2d');
+
+// 3 frames of eating animation
+for(let i = 0; i < 3; i++) {
+  const x = i * 64;
+  const mouthOpen = 0.3 + i * 0.2;
+  
+  // Body (yellow when eating)
+  ctx.fillStyle = '#ffd93d';
+  ctx.beginPath();
+  ctx.arc(x + 32, 32, 28, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // Eyes (closed)
+  ctx.fillStyle = '#1a1a2e';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(x + 20, 28);
+  ctx.lineTo(x + 28, 28);
+  ctx.moveTo(x + 36, 28);
+  ctx.lineTo(x + 44, 28);
+  ctx.stroke();
+  
+  // Open mouth
+  ctx.fillStyle = '#1a1a2e';
+  ctx.beginPath();
+  ctx.arc(x + 32, 32, 20, mouthOpen * Math.PI, (2 - mouthOpen) * Math.PI);
+  ctx.lineTo(x + 32, 32);
+  ctx.fill();
+}
+
+setTimeout(() => {
+  const a = document.createElement('a');
+  a.download = 'player_eat.png';
+  a.href = c.toDataURL();
+  a.click();
+}, 100);
+</script>
+</body>
+</html>

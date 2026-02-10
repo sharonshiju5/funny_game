@@ -1,0 +1,142 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: 'Arial', sans-serif;
+}
+
+#gameContainer {
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+#gameCanvas {
+  display: block;
+  background: #1a1a2e;
+  border: 3px solid #fff;
+}
+
+#ui {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+#score {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  color: #fff;
+  font-size: 24px;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+#gameOver {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.9);
+  padding: 40px;
+  border-radius: 10px;
+  text-align: center;
+  color: #fff;
+  pointer-events: all;
+}
+
+#gameOver h2 {
+  font-size: 48px;
+  margin-bottom: 20px;
+  color: #ff6b6b;
+}
+
+#gameOver p {
+  font-size: 24px;
+  margin-bottom: 30px;
+}
+
+#restartBtn {
+  padding: 15px 40px;
+  font-size: 20px;
+  background: #4ecdc4;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#restartBtn:hover {
+  background: #45b7aa;
+}
+
+.hidden {
+  display: none;
+}
+
+#vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle, transparent 50%, rgba(0,0,0,0.5));
+}
+
+#controls {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  display: grid;
+  grid-template-rows: auto auto auto;
+  gap: 8px;
+  z-index: 1000;
+}
+
+#controls .horizontal {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+#controls button {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(10px);
+  border: 3px solid rgba(255,255,255,0.4);
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  transition: all 0.1s;
+}
+
+#controls button:active {
+  background: rgba(255,255,255,0.3);
+  transform: scale(0.95);
+}
+
+@media (max-width: 768px) {
+  #gameCanvas {
+    width: 100vw;
+    height: 100vh;
+  }
+  
+  #controls {
+    bottom: 20px;
+    right: 20px;
+  }
+}

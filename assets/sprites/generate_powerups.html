@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<body>
+<canvas id="c" width="96" height="32"></canvas>
+<script>
+const c = document.getElementById('c');
+const ctx = c.getContext('2d');
+
+// Shield power-up
+ctx.fillStyle = '#4ecdc4';
+ctx.strokeStyle = '#fff';
+ctx.lineWidth = 2;
+ctx.beginPath();
+ctx.arc(16, 16, 12, 0, Math.PI * 2);
+ctx.fill();
+ctx.stroke();
+ctx.fillStyle = '#fff';
+ctx.font = 'bold 16px Arial';
+ctx.fillText('S', 12, 21);
+
+// Speed power-up
+ctx.fillStyle = '#ff6b6b';
+ctx.beginPath();
+ctx.arc(48, 16, 12, 0, Math.PI * 2);
+ctx.fill();
+ctx.stroke();
+ctx.fillStyle = '#fff';
+ctx.fillText('⚡', 42, 21);
+
+// Magnet power-up
+ctx.fillStyle = '#9b59b6';
+ctx.beginPath();
+ctx.arc(80, 16, 12, 0, Math.PI * 2);
+ctx.fill();
+ctx.stroke();
+ctx.fillStyle = '#fff';
+ctx.fillText('M', 75, 21);
+
+setTimeout(() => {
+  const a = document.createElement('a');
+  a.download = 'powerups.png';
+  a.href = c.toDataURL();
+  a.click();
+}, 100);
+</script>
+</body>
+</html>
