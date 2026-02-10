@@ -5,6 +5,54 @@ const gameOverEl = document.getElementById('gameOver');
 const finalScoreEl = document.getElementById('finalScore');
 const restartBtn = document.getElementById('restartBtn');
 
+// Audio System
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const analyser = audioCtx.createAnalyser();
+analyser.fftSize = 128;
+const dataArray = new Uint8Array(analyser.frequencyBinCount);
+let audioEnergy = 0;
+let eatPulse = 0;
+
+// Mobile audio unlock
+window.addEventListener('touchstart', () => {
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}, { once: true });
+
+function playTone(freq, duration, type = 'sine') {
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  const analyserNode = audioCtx.createAnalyser();
+  
+  osc.connect(gain);
+  gain.connect(analyserNode);
+  analyserNode.connect(audioCtx.destination);
+  analyserNode.connect(analyser);
+  
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(freq * 0.5, audioCtx.currentTime + duration);
+  
+  gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+  
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration);
+}
+
+function playEat() {
+  playTone(800, 0.1, 'square');
+  eatPulse = 1;
+}
+
+function playDeath() {
+  playTone(200, 0.3, 'sawtooth');
+}
+
+function playPowerUp() {
+  playTone(600, 0.15, 'sine');
+  setTimeout(() => playTone(800, 0.15, 'sine'), 50);
+}
+
 // Input Systems
 const keys = {};
 const touchKeys = { up: false, down: false, left: false, right: false };
@@ -28,7 +76,7 @@ document.querySelectorAll('#controls button').forEach(btn => {
 });
 
 // Game State
-let player, balls, powerUps, score, spawnTimer, spawnInterval, gameRunning, shakeTime, combo;
+let player, balls, powerUps, particles, score, spawnTimer, spawnInterval, gameRunning, shakeTime, combo;
 
 function initGame() {
   player = {
@@ -49,6 +97,7 @@ function initGame() {
   
   balls = [];
   powerUps = [];
+  particles = [];
   score = 0;
   combo = 0;
   spawnTimer = 0;
@@ -105,9 +154,30 @@ function collision(a, b) {
   return distance < a.radius + b.radius;
 }
 
+// Particle System
+function createParticles(x, y, color, count = 8) {
+  for (let i = 0; i < count; i++) {
+    const angle = (Math.PI * 2 * i) / count;
+    particles.push({
+      x, y,
+      vx: Math.cos(angle) * (100 + Math.random() * 100),
+      vy: Math.sin(angle) * (100 + Math.random() * 100),
+      life: 0.5,
+      color
+    });
+  }
+}
+
 // Update Logic
 function update(deltaTime) {
   if (!gameRunning) return;
+  
+  // Audio analysis
+  analyser.getByteFrequencyData(dataArray);
+  let bass = 0;
+  for (let i = 0; i < 10; i++) bass += dataArray[i];
+  audioEnergy = bass / 2550;
+  eatPulse = Math.max(0, eatPulse - deltaTime * 5);
   
   // Input → Velocity (keyboard + touch)
   const velocityX = (
@@ -215,15 +285,20 @@ function update(deltaTime) {
         combo++;
         score += 10 * combo;
         scoreEl.textContent = `Score: ${score}${combo > 1 ? ' x' + combo : ''}`;
+        playEat();
+        createParticles(ball.x, ball.y, ball.color, 6);
         balls.splice(i, 1);
       } else {
         if (player.shield) {
           player.shield = false;
           balls.splice(i, 1);
           shakeTime = 0.2;
+          createParticles(ball.x, ball.y, '#4ecdc4', 12);
         } else {
           gameRunning = false;
           shakeTime = 0.5;
+          playDeath();
+          createParticles(player.x, player.y, '#ff6b6b', 20);
           gameOverEl.classList.remove('hidden');
           finalScoreEl.textContent = score;
         }
@@ -251,8 +326,21 @@ function update(deltaTime) {
         player.magnet = true;
         player.magnetTime = 5;
       }
+      playPowerUp();
+      createParticles(powerUp.x, powerUp.y, powerUp.color, 10);
       powerUps.splice(i, 1);
     }
+  }
+  
+  // Particles
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx * deltaTime * (1 + audioEnergy * 0.5);
+    p.y += p.vy * deltaTime * (1 + audioEnergy * 0.5);
+    p.vx *= 0.95;
+    p.vy *= 0.95;
+    p.life -= deltaTime;
+    if (p.life <= 0) particles.splice(i, 1);
   }
   
   // Screen Shake
@@ -265,9 +353,9 @@ function update(deltaTime) {
 function draw() {
   ctx.save();
   
-  // Screen Shake
+  // Screen Shake (audio-reactive)
   if (shakeTime > 0) {
-    const intensity = 8;
+    const intensity = 8 + audioEnergy * 10;
     ctx.translate(
       (Math.random() - 0.5) * intensity,
       (Math.random() - 0.5) * intensity
@@ -278,8 +366,8 @@ function draw() {
   ctx.fillStyle = '#1a1a2e';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   
-  // Draw Player
-  const scale = player.state === 'eating' ? 1.1 : 1;
+  // Draw Player (audio-reactive pulse)
+  const scale = (player.state === 'eating' ? 1.1 : 1) + eatPulse * 0.15;
   ctx.save();
   ctx.translate(player.x, player.y);
   ctx.scale(scale, scale);
@@ -316,8 +404,10 @@ function draw() {
   
   ctx.restore();
   
-  // Shield Effect
+  // Shield Effect (audio-reactive glow)
   if (player.shield) {
+    ctx.shadowBlur = 10 + audioEnergy * 20;
+    ctx.shadowColor = '#4ecdc4';
     ctx.beginPath();
     ctx.arc(player.x, player.y, player.radius + 8, 0, Math.PI * 2);
     ctx.strokeStyle = '#4ecdc4';
@@ -325,6 +415,7 @@ function draw() {
     ctx.setLineDash([5, 5]);
     ctx.stroke();
     ctx.setLineDash([]);
+    ctx.shadowBlur = 0;
   }
   
   // Magnet Effect
@@ -358,6 +449,16 @@ function draw() {
       ctx.stroke();
     }
   });
+  
+  // Draw Particles
+  particles.forEach(p => {
+    ctx.globalAlpha = p.life;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
   
   // Draw Power-ups
   powerUps.forEach(powerUp => {

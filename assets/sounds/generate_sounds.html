@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h2>Audio Generator (Click buttons to generate & download)</h2>
+<button id="eat">Generate Eat Sound</button>
+<button id="death">Generate Death Sound</button>
+<button id="powerup">Generate PowerUp Sound</button>
+
+<script>
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function generateSound(type) {
+  const duration = type === 'death' ? 0.5 : 0.15;
+  const sampleRate = audioCtx.sampleRate;
+  const buffer = audioCtx.createBuffer(1, sampleRate * duration, sampleRate);
+  const data = buffer.getChannelData(0);
+  
+  for (let i = 0; i < buffer.length; i++) {
+    const t = i / sampleRate;
+    let sample = 0;
+    
+    if (type === 'eat') {
+      // Quick chirp
+      const freq = 800 - t * 400;
+      sample = Math.sin(2 * Math.PI * freq * t) * Math.exp(-t * 10);
+    } else if (type === 'death') {
+      // Descending crash
+      const freq = 400 - t * 600;
+      sample = (Math.random() * 2 - 1) * 0.3 + Math.sin(2 * Math.PI * freq * t) * 0.7;
+      sample *= Math.exp(-t * 2);
+    } else if (type === 'powerup') {
+      // Ascending arpeggio
+      const freq = 400 + t * 800;
+      sample = Math.sin(2 * Math.PI * freq * t) * Math.exp(-t * 8);
+    }
+    
+    data[i] = sample * 0.3;
+  }
+  
+  // Convert to WAV and download
+  const wav = bufferToWave(buffer);
+  const blob = new Blob([wav], { type: 'audio/wav' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${type}.wav`;
+  a.click();
+}
+
+function bufferToWave(buffer) {
+  const length = buffer.length * buffer.numberOfChannels * 2 + 44;
+  const arrayBuffer = new ArrayBuffer(length);
+  const view = new DataView(arrayBuffer);
+  const channels = [];
+  let offset = 0;
+  let pos = 0;
+  
+  // WAV header
+  setUint32(0x46464952); // "RIFF"
+  setUint32(length - 8);
+  setUint32(0x45564157); // "WAVE"
+  setUint32(0x20746d66); // "fmt "
+  setUint32(16);
+  setUint16(1);
+  setUint16(buffer.numberOfChannels);
+  setUint32(buffer.sampleRate);
+  setUint32(buffer.sampleRate * 2 * buffer.numberOfChannels);
+  setUint16(buffer.numberOfChannels * 2);
+  setUint16(16);
+  setUint32(0x61746164); // "data"
+  setUint32(length - pos - 4);
+  
+  for (let i = 0; i < buffer.numberOfChannels; i++) {
+    channels.push(buffer.getChannelData(i));
+  }
+  
+  while (pos < length) {
+    for (let i = 0; i < buffer.numberOfChannels; i++) {
+      const sample = Math.max(-1, Math.min(1, channels[i][offset]));
+      view.setInt16(pos, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+      pos += 2;
+    }
+    offset++;
+  }
+  
+  return arrayBuffer;
+  
+  function setUint16(data) {
+    view.setUint16(pos, data, true);
+    pos += 2;
+  }
+  
+  function setUint32(data) {
+    view.setUint32(pos, data, true);
+    pos += 4;
+  }
+}
+
+document.getElementById('eat').onclick = () => generateSound('eat');
+document.getElementById('death').onclick = () => generateSound('death');
+document.getElementById('powerup').onclick = () => generateSound('powerup');
+</script>
+</body>
+</html>
