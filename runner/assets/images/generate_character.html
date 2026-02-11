@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Character Sprite Generator</title>
+</head>
+<body>
+    <h2>Character Sprites</h2>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 400;
+        canvas.height = 300;
+
+        function drawRun(x, y, frame) {
+            ctx.fillStyle = '#FF6B35';
+            ctx.fillRect(x, y, 50, 60);
+            ctx.fillStyle = '#FFF';
+            ctx.fillRect(x + 10, y + 10, 10, 10);
+            ctx.fillRect(x + 30, y + 10, 10, 10);
+            ctx.fillStyle = '#FF6B35';
+            ctx.fillRect(x + 15 + (frame % 2) * 10, y + 40, 8, 20);
+            ctx.fillRect(x + 25 + ((frame + 1) % 2) * 10, y + 40, 8, 20);
+        }
+
+        function drawJump(x, y) {
+            ctx.fillStyle = '#FF6B35';
+            ctx.fillRect(x, y, 50, 60);
+            ctx.fillStyle = '#FFF';
+            ctx.fillRect(x + 10, y + 10, 10, 10);
+            ctx.fillRect(x + 30, y + 10, 10, 10);
+            ctx.fillStyle = '#FF6B35';
+            ctx.fillRect(x + 15, y + 35, 8, 25);
+            ctx.fillRect(x + 27, y + 35, 8, 25);
+        }
+
+        function drawSlide(x, y) {
+            ctx.fillStyle = '#FF6B35';
+            ctx.fillRect(x, y, 50, 30);
+            ctx.fillStyle = '#FFF';
+            ctx.fillRect(x + 10, y + 5, 10, 10);
+            ctx.fillRect(x + 30, y + 5, 10, 10);
+        }
+
+        ctx.fillStyle = '#87CEEB';
+        ctx.fillRect(0, 0, 400, 300);
+
+        ctx.fillStyle = '#000';
+        ctx.font = '14px Arial';
+        ctx.fillText('RUN Frame 1', 10, 20);
+        drawRun(10, 30, 0);
+
+        ctx.fillText('RUN Frame 2', 110, 20);
+        drawRun(110, 30, 1);
+
+        ctx.fillText('JUMP', 210, 20);
+        drawJump(210, 30);
+
+        ctx.fillText('SLIDE', 310, 20);
+        drawSlide(310, 50);
+
+        const link = document.createElement('a');
+        link.download = 'character_sprites.png';
+        link.href = canvas.toDataURL();
+        link.textContent = 'Download Sprites';
+        document.body.appendChild(link);
+    </script>
+</body>
+</html>

@@ -15,6 +15,31 @@ export class Player {
         this.animTimer = 0;
         this.dustTimer = 0;
         this.trail = [];
+        this.sprites = {};
+        this.spritesLoaded = false;
+        this.loadSprites();
+    }
+
+    loadSprites() {
+        const img = new Image();
+        img.onload = () => {
+            this.sprites.run1 = this.extractSprite(img, 10, 30, 50, 60);
+            this.sprites.run2 = this.extractSprite(img, 110, 30, 50, 60);
+            this.sprites.jump = this.extractSprite(img, 210, 30, 50, 60);
+            this.sprites.slide = this.extractSprite(img, 310, 50, 50, 30);
+            this.spritesLoaded = true;
+        };
+        img.onerror = () => this.spritesLoaded = false;
+        img.src = 'assets/images/character_sprites.png';
+    }
+
+    extractSprite(img, x, y, w, h) {
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, x, y, w, h, 0, 0, w, h);
+        return canvas;
     }
 
     jump() {
@@ -79,9 +104,24 @@ export class Player {
             });
         }
         
+        if (this.spritesLoaded) {
+            let sprite;
+            if (this.state === 'JUMP' || this.state === 'FLY') {
+                sprite = this.sprites.jump;
+            } else if (this.state === 'SLIDE') {
+                sprite = this.sprites.slide;
+            } else {
+                sprite = this.animFrame % 2 === 0 ? this.sprites.run1 : this.sprites.run2;
+            }
+            
+            if (sprite) {
+                ctx.drawImage(sprite, this.x, this.y);
+                return;
+            }
+        }
+        
         ctx.fillStyle = this.state === 'DEAD' ? '#666' : '#FF6B35';
         ctx.fillRect(this.x, this.y, this.width, this.height);
-        
         ctx.fillStyle = '#FFF';
         ctx.fillRect(this.x + 10, this.y + 10, 10, 10);
         ctx.fillRect(this.x + 30, this.y + 10, 10, 10);
