@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Endless Runner</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        
+        <div id="menu" class="screen">
+            <h1>ENDLESS RUNNER</h1>
+            <div id="high-score">HIGH SCORE: 0</div>
+            <button id="startBtn">START GAME</button>
+            <button id="muteBtn">🔊 SOUND ON</button>
+        </div>
+        
+        <div id="hud">
+            <div id="score">0</div>
+            <div id="booster-indicator"></div>
+            <button id="pauseBtn">⏸</button>
+        </div>
+        
+        <div id="pause-screen" class="screen hidden">
+            <h2>PAUSED</h2>
+            <button id="resumeBtn">RESUME</button>
+            <button id="menuBtn">MENU</button>
+        </div>
+        
+        <div id="gameover-screen" class="screen hidden">
+            <h2>GAME OVER</h2>
+            <div id="final-score"></div>
+            <div id="new-record" class="hidden">🏆 NEW RECORD!</div>
+            <button id="retryBtn">RETRY</button>
+            <button id="menuBtn2">MENU</button>
+        </div>
+        
+        <div id="mobile-controls">
+            <button id="jumpBtn">↑<br>JUMP</button>
+            <button id="slideBtn">↓<br>SLIDE</button>
+        </div>
+    </div>
+
+    <script type="module" src="game.js"></script>
+</body>
+</html>

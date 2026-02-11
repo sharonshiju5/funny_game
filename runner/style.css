@@ -1,0 +1,172 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial Black', sans-serif;
+    background: #000;
+    overflow: hidden;
+    touch-action: none;
+}
+
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#gameCanvas {
+    display: block;
+    background: #87CEEB;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    z-index: 100;
+}
+
+.screen.hidden {
+    display: none;
+}
+
+h1 {
+    color: #FFD700;
+    font-size: 48px;
+    margin-bottom: 30px;
+    text-shadow: 3px 3px 0 #FF4500;
+}
+
+h2 {
+    color: #FFD700;
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+#high-score {
+    color: #00FF00;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+button {
+    background: linear-gradient(180deg, #FF6B35, #FF4500);
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    margin: 10px;
+    transition: transform 0.1s;
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+#hud {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 50;
+}
+
+#score {
+    font-size: 36px;
+    color: #FFD700;
+    text-shadow: 2px 2px 0 #000;
+    font-weight: bold;
+}
+
+#booster-indicator {
+    font-size: 24px;
+    color: #00FF00;
+    text-shadow: 2px 2px 0 #000;
+    font-weight: bold;
+}
+
+#pauseBtn {
+    padding: 10px 20px;
+    font-size: 24px;
+}
+
+#final-score {
+    font-size: 48px;
+    color: #FFD700;
+    margin: 20px 0;
+}
+
+#new-record {
+    font-size: 32px;
+    color: #00FF00;
+    margin: 10px 0;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+#mobile-controls {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    gap: 20px;
+    z-index: 50;
+}
+
+#mobile-controls button {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    font-size: 16px;
+    padding: 0;
+    background: rgba(255, 107, 53, 0.8);
+    backdrop-filter: blur(10px);
+}
+
+@media (min-width: 768px) {
+    #mobile-controls {
+        display: none;
+    }
+}
+
+@media (max-width: 767px) {
+    h1 {
+        font-size: 32px;
+    }
+    
+    #score {
+        font-size: 24px;
+    }
+    
+    .screen {
+        padding: 20px;
+        width: 90%;
+    }
+}
